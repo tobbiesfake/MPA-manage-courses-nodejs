@@ -20,11 +20,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 // OR USE THIS
 // app.use(express.static('src/public'));
 
-app.    engine('.hbs', engine({ extname: '.hbs' }));
-app.    
-set('view engine', '.hbs');
-app.
-set('views', path.join(__dirname, 'resources/views'));
+app.engine('.hbs', engine({ extname: '.hbs' }));
+app.set('view engine', '.hbs');
+app.set('views', path.join(__dirname, 'resources/views'));
 
 route(app);
 
