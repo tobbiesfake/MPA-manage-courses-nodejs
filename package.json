@@ -1,0 +1,31 @@
+{
+  "name": "my-nodejs",
+  "version": "1.0.0",
+  "description": "playground nodejs",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "beautify": "lint-staged",
+    "start": "nodemon --inspect src/index.js",
+    "watch": "node-sass --watch --output src/public/css src/resources/scss",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "lint-staged"
+  },
+  "lint-staged": {
+    "src/**/*.{js,json,scss}": "prettier --single-quote --trailing-comma all --tab-width 4 --write"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-handlebars": "^6.0.6"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "lint-staged": "^13.0.3",
+    "morgan": "^1.10.0",
+    "node-sass": "^8.0.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.7.1"
+  }
+}
