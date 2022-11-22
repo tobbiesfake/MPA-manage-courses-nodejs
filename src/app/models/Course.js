@@ -6,6 +6,7 @@ const Course = new Schema({
     description: { type: String, default: '' },
     price: { type: String, default: '' },
     createAt: { type: Date, default: Date.now },
+    updateAt: { type: Date, default: Date.now },
 });
 
 export default mongoose.model('Course', Course);

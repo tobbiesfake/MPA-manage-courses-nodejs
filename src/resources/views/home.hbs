@@ -1,9 +1,20 @@
 <div class="m-4">
-  <form method="POST" action="/">
+  {{!-- <form method="POST" action="/">
     <div class="form-group">
       <label for="exampleInputEmail1">Tìm kiếm</label>
       <input type="text" name="q" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Tìm kiếm...">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
+  </form> --}}
+
+  {{#each courses}}
+    <div class="card" style="width: 18rem;">
+      <div class="card-body">
+        <h5 class="card-title">{{this.name}}</h5>
+        <p class="card-text">{{this.description}}</p>
+        <p>{{this.createAt}}</p>
+        <a href="#" class="btn btn-primary">Go to course</a>
+      </div>
+    </div>
+  {{/each}}
 </div>
