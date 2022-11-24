@@ -1,16 +1,16 @@
 class InfoController {
     // [GET] / info
     index(req, res) {
-        res.render('info');
+        res.render('./info/info');
     }
 
     // [GET] / info/email
     email(req, res) {
-        res.send('example@gmail.com');
+        res.render('./info/email');
     }
 
     phone(req, res) {
-        res.send('(+84)981 227 712');
+        res.render('./info/phone');
     }
 }
 

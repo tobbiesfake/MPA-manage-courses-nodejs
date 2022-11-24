@@ -11,7 +11,8 @@ class SiteController {
     }
 
     search(req, res) {
-        res.send('SEARCH');
+        console.dir(req.query);
+        res.render('search', req.query);
     }
 }
 
