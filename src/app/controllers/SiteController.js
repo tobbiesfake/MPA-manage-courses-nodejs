@@ -11,8 +11,11 @@ class SiteController {
     }
 
     search(req, res) {
-        console.dir(req.query);
         res.render('search', req.query);
+    }
+
+    notFound(req, res) {
+        res.render('page-not-found');
     }
 }
 

@@ -3,9 +3,9 @@ import {
     mongooseToObject,
     multipleMongooseToObject,
 } from '../../utility/mongoose.js';
-
 class CoursesController {
-    home(req, res, next) {
+    // [GET] /courses
+    courses(req, res, next) {
         Course.find({})
             .then((courses) => {
                 courses = multipleMongooseToObject(courses);
@@ -14,6 +14,7 @@ class CoursesController {
             .catch(next);
     }
 
+    // [GET] /courses/:slug
     index(req, res, next) {
         Course.findOne({ slug: req.params.slug })
             .then((course) => {
@@ -27,19 +28,73 @@ class CoursesController {
             .catch(next);
     }
 
+    // [GET] /courses/create
     create(req, res, next) {
-        res.render('./course/newCourse');
+        res.render('./course/create');
     }
 
-    success(req, res, next) {
+    // [POST] /courses/save
+    save(req, res, next) {
         new Course({
             name: req.body.name,
             description: req.body.description,
             price: req.body.price,
+            videoId: req.body.videoId,
             slug: req.body.slug,
         })
             .save()
-            .then(res.render('./course/success'));
+            .then(res.redirect('/courses/manage'))
+            .catch(next);
+    }
+
+    // [GET] /courses/manage
+    manage(req, res, next) {
+        Course.find({})
+            .then((courses) => {
+                courses = multipleMongooseToObject(courses);
+                if (courses) {
+                    res.render('./course/manage', { courses });
+                } else {
+                    res.render('page-not-found');
+                }
+            })
+            .catch(next);
+    }
+
+    // [GET] /courses/edit/:id
+    edit(req, res, next) {
+        Course.findOne({ _id: req.params.id })
+            .then((course) => {
+                mongooseToObject(course);
+                if (course) {
+                    res.render('./course/edit', course);
+                } else {
+                    res.render('page-not-found');
+                }
+            })
+            .catch(next);
+    }
+
+    // [PUT] /:id
+    update(req, res, next) {
+        Course.updateOne(
+            { _id: req.params.id },
+            {
+                name: req.body.name,
+                description: req.body.description,
+                price: req.body.price,
+                videoId: req.body.videoId,
+            },
+        )
+            .then(res.redirect('/courses/manage'))
+            .catch(next);
+    }
+
+    // [DELETE] courses/:id
+    delete(req, res, next) {
+        Course.deleteOne({ _id: req.params.id })
+            .then(res.redirect('/courses/manage'))
+            .catch(next);
     }
 }
 

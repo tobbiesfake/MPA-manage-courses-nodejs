@@ -9,6 +9,7 @@ const courseSchema = new Schema(
         name: { type: String, default: '' },
         description: { type: String, default: '' },
         price: { type: Number, default: 0 },
+        videoId: { type: String, default: '' },
         slug: { type: String, slug: 'name', unique: true },
     },
     {
