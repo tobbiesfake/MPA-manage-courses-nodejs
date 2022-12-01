@@ -3,6 +3,7 @@ import {
     mongooseToObject,
     multipleMongooseToObject,
 } from '../../utility/mongoose.js';
+
 class CoursesController {
     // [GET] /courses
     courses(req, res, next) {
@@ -40,7 +41,6 @@ class CoursesController {
             description: req.body.description,
             price: req.body.price,
             videoId: req.body.videoId,
-            slug: req.body.slug,
         })
             .save()
             .then(res.redirect('/courses/manage'))
@@ -92,8 +92,31 @@ class CoursesController {
 
     // [DELETE] courses/:id
     delete(req, res, next) {
-        Course.deleteOne({ _id: req.params.id })
+        Course.delete({ _id: req.params.id })
             .then(res.redirect('/courses/manage'))
+            .catch(next);
+    }
+
+    // [GET] courses/deleted
+    deleted(req, res, next) {
+        Course.findDeleted({})
+            .then((courses) =>
+                res.render('./course/deleted-courses', {
+                    courses: multipleMongooseToObject(courses),
+                }),
+            )
+            .catch(next);
+    }
+
+    restore(req, res, next) {
+        Course.restore({ _id: req.params.id })
+            .then(res.redirect('back'))
+            .catch(next);
+    }
+
+    forceDelete(req, res, next) {
+        Course.deleteOne({ _id: req.params.id })
+            .then(res.redirect('back'))
             .catch(next);
     }
 }

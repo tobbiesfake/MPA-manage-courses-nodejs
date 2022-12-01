@@ -37,6 +37,6 @@ route(app);
 
 app.listen(port, () => {
     console.log(
-        `Your server is running on port ${port}. Link access "http://localhost:${port}/"`,
+        `Your server is running on port ${port}. Link access http://localhost:${port}/`,
     );
 });
