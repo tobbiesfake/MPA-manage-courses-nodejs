@@ -1,11 +1,27 @@
-<h1 class="text-center">LIST OF COURSE</h1>
-<a href="/courses/deleted">
-  <button class="btn btn-sm btn-primary py-2 ml-3 mb-1">Deleted courses</button>
-</a>
+<h1 class="text-center">LIST OF COURSES</h1>
+<div>
+  <a href="/courses/create">
+    <button class="btn btn-sm btn-primary py-2 px-4 ml-3 mb-1">Create course</button>
+  </a>
+</div>
+<div>
+  <a href="/courses/deleted">
+    <button class="btn btn-sm btn-primary ml-3 py-2 mb-1">Deleted courses ({{deletedCount}})</button>
+  </a>
+</div>
+
+<form id="multiple-select-form" action="/courses/multi-course?_method=DELETE" method="POST">
+
+<div class="m-3">
+  <button class="btn btn-secondary select-all" id="select-all">Select all</button>
+  <button class="btn btn-secondary unselect-all" id="unselect-all" disabled>Unselect all</button>
+  <button class="btn btn-danger delete-selected" id="delete-selected" type="submit" form="multiple-select-form" disabled>Delete</button>
+</div>
 {{#if courses}}
   <table class="table table-dark table-striped">
     <thead>
       <tr>
+        <th scope="col"></th>
         <th scope="col">#</th>
         <th scope="col">Name</th>
         <th scope="col">Description</th>
@@ -16,7 +32,10 @@
     <tbody>
         {{#each courses}}
           <tr>
-              <td scope="row">{{sum @index 1}}</td>
+              <td>
+                <input type="checkbox" name="courseIds[]" value="{{this._id}}">
+              </td>
+              <th scope="row">{{sum @index 1}}</th>
               <td>{{this.name}}</td>
               <td>{{this.description}}</td>
               <td>{{this.price}}</td>
@@ -36,6 +55,7 @@
 {{else}}
   <h3 class="">You have no course yet!</h3>
 {{/if}}
+</form>
 
 <div class="modal fade" tabindex="-1" id="confirm-delete-course">
   <div class="modal-dialog">
@@ -56,12 +76,16 @@
 </div>
 
 {{!-- Hidden delete form --}}
-<form name="delete-course-form" method="POST" action=""></form>
+<form name="delete-course-form" method="POST" action="courses/manage"></form>
 
 <script>
-  const deleteModal = document.getElementById('confirm-delete-course')
+  const deleteModal = document.getElementById('confirm-delete-course');
   const confirmBtn = document.getElementById('confirm-btn');
   const deleteForm = document.forms['delete-course-form'];
+  const checkboxes = document.querySelectorAll('input[name="courseIds[]"]');
+  const selectAllBtn = document.getElementById('select-all');
+  const unselectAllBtn = document.getElementById('unselect-all');
+  const deleteSelectedBtn = document.getElementById('delete-selected');
   let id = '';
 
   deleteModal.addEventListener('show.bs.modal', event => {
@@ -73,5 +97,59 @@
     deleteForm.action = `/courses/${id}?_method=DELETE`
     deleteForm.submit();
   });
+
+  selectAllBtn.addEventListener('click', function (event) {
+    if(!checkboxes.length) {
+      event.preventDefault();
+      return;
+    }
+
+    checkboxes.forEach(checkbox => checkbox.checked = true);
+    handleDisplayBtn();
+  });
+
+  unselectAllBtn.addEventListener('click', function() {
+    if(!checkboxes.length) {
+      event.preventDefault();
+      return;
+    }
+    
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+    handleDisplayBtn();
+  });
+
+  function someHasChecked () {
+    const arr = [...checkboxes];
+    return arr.some(checkbox => checkbox.checked)
+  }
+  
+  function isAllChecked () {
+    const arr = [...checkboxes];
+    return arr.every(checkbox => checkbox.checked)
+  }
+
+  function handleDisplayBtn () {
+    if(isAllChecked()){
+      selectAllBtn.setAttribute('disabled', true);
+      unselectAllBtn.removeAttribute('disabled');
+      deleteSelectedBtn.removeAttribute('disabled');
+      return
+    }
+
+    if(someHasChecked()){
+      selectAllBtn.removeAttribute('disabled');
+      unselectAllBtn.removeAttribute('disabled');
+      deleteSelectedBtn.removeAttribute('disabled');
+      return
+    }
+
+    selectAllBtn.removeAttribute('disabled');
+    unselectAllBtn.setAttribute('disabled', true);
+    deleteSelectedBtn.setAttribute('disabled', true);
+  }
+
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', handleDisplayBtn);
+  })
 
 </script>

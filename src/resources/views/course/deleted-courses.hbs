@@ -1,11 +1,21 @@
 <h1 class="text-center">DELETED COURSES</h1>
 <a href="/courses/manage">
-  <button class="btn btn-sm btn-primary py-2 ml-3 mb-1">Stored courses</button>
+  <button class="btn btn-sm btn-primary py-2 ml-3 mb-1">Stored courses ({{coursesCount}})</button>
 </a>
+
+<form id="multiple-select-form" name="multiple-select-form" action="" method="POST">
+
+<div class="m-3">
+  <button class="btn btn-secondary select-all" id="select-all">Select all</button>
+  <button class="btn btn-secondary unselect-all" id="unselect-all" disabled>Unselect all</button>
+  <button class="btn btn-success restore-selected" id="restore-selected" type="submit" form="multiple-select-form" disabled>Restore</button>
+  <button class="btn btn-danger force-delete-selected" id="force-delete-selected" type="submit" form="multiple-select-form" disabled>Force Delete</button>
+</div>
 {{#if courses}}
   <table class="table table-dark table-striped">
     <thead>
       <tr>
+        <th scope="col"></th>
         <th scope="col">#</th>
         <th scope="col">Name</th>
         <th scope="col">Description</th>
@@ -16,14 +26,17 @@
     <tbody>
         {{#each courses}}
           <tr>
-              <td scope="row">{{sum @index 1}}</td>
+              <td>
+                <input type="checkbox" name="courseIds[]" value="{{this._id}}">
+              </td>
+              <th scope="row">{{sum @index 1}}</th>
               <td>{{this.name}}</td>
               <td>{{this.description}}</td>
               <td>{{this.price}}</td>
               <td>{{this.videoId}}</td>
               <td>
                 <a href="/courses/restore/{{this._id}}">Restore</a>
-                <a href="" data-id="{{this._id}}" data-bs-toggle="modal" data-bs-target="#confirm-delete-course">
+                <a href="" data-id="{{this._id}}" data-bs-toggle="modal" data-bs-target="#confirm-force-deletion">
                   Force delete
                 </a>
                 </td>
@@ -34,8 +47,9 @@
 {{else}}
   <h3 class="">Trashbin is empty!</h3>
 {{/if}}
+</form>
 
-<div class="modal fade" tabindex="-1" id="confirm-delete-course">
+<div class="modal fade" tabindex="-1" id="confirm-force-deletion">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -57,19 +71,93 @@
 <form name="delete-course-form" method="POST" action=""></form>
 
 <script>
-  const deleteModal = document.getElementById('confirm-delete-course')
+  const forceDeleteModal = document.getElementById('confirm-force-deletion')
   const confirmBtn = document.getElementById('confirm-btn');
-  const deleteForm = document.forms['delete-course-form'];
+  const forceDeleteForm = document.forms['delete-course-form'];
+  const multiSelectionForm = document.forms['multiple-select-form'];
+  const checkboxes = document.querySelectorAll('input[name="courseIds[]"]');
+  const selectAllBtn = document.getElementById('select-all');
+  const unselectAllBtn = document.getElementById('unselect-all');
+  const restoreBtn = document.getElementById('restore-selected');
+  const forceDeleteBtn = document.getElementById('force-delete-selected');
+
   let id = '';
 
-  deleteModal.addEventListener('show.bs.modal', event => {
+  forceDeleteModal.addEventListener('show.bs.modal', event => {
     const button = event.relatedTarget;
     id = button.getAttribute('data-id');
   });
 
   confirmBtn.addEventListener('click', function(event){
-    deleteForm.action = `/courses/force-delete/${id}?_method=DELETE`
-    deleteForm.submit();
+   forceDeleteForm.action = `/courses/force-delete/${id}?_method=DELETE`
+   forceDeleteForm.submit();
   });
+
+  selectAllBtn.addEventListener('click', function (event) {
+    if(!checkboxes.length) {
+      event.preventDefault();
+      return;
+    }
+
+    checkboxes.forEach(checkbox => checkbox.checked = true);
+    handleDisplayBtn();
+  });
+
+  unselectAllBtn.addEventListener('click', function() {
+    if(!checkboxes.length) {
+      event.preventDefault();
+      return;
+    }
+    
+    checkboxes.forEach(checkbox => checkbox.checked = false);
+    handleDisplayBtn();
+  });
+
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', handleDisplayBtn);
+  })
+
+  function someHasChecked () {
+    const arr = [...checkboxes];
+    return arr.some(checkbox => checkbox.checked)
+  }
+  
+  function isAllChecked () {
+    const arr = [...checkboxes];
+    return arr.every(checkbox => checkbox.checked)
+  }
+
+  function handleDisplayBtn () {
+    if(isAllChecked()){
+      selectAllBtn.setAttribute('disabled', true);
+      unselectAllBtn.removeAttribute('disabled');
+      restoreBtn.removeAttribute('disabled');
+      forceDeleteBtn.removeAttribute('disabled');
+      return
+    }
+
+    if(someHasChecked()){
+      selectAllBtn.removeAttribute('disabled');
+      unselectAllBtn.removeAttribute('disabled');
+      restoreBtn.removeAttribute('disabled');
+      forceDeleteBtn.removeAttribute('disabled');
+      return
+    }
+
+    selectAllBtn.removeAttribute('disabled');
+    unselectAllBtn.setAttribute('disabled', true);
+    restoreBtn.setAttribute('disabled', true);
+    forceDeleteBtn.setAttribute('disabled', true);
+  }
+
+  restoreBtn.addEventListener('click', () => {
+    multiSelectionForm.action = '/courses/multi-restore';
+    multiSelectionForm.submit();
+  })
+
+  forceDeleteBtn.addEventListener('click', () => {
+    multiSelectionForm.action = '/courses/multi-force-delete?_method=DELETE';
+    multiSelectionForm.submit();
+  })
 
 </script>

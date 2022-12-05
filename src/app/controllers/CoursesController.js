@@ -21,7 +21,7 @@ class CoursesController {
             .then((course) => {
                 mongooseToObject(course);
                 if (course) {
-                    res.render('./course/course', course);
+                    res.render('./course/course-detail', course);
                 } else {
                     res.render('page-not-found');
                 }
@@ -49,14 +49,12 @@ class CoursesController {
 
     // [GET] /courses/manage
     manage(req, res, next) {
-        Course.find({})
-            .then((courses) => {
-                courses = multipleMongooseToObject(courses);
-                if (courses) {
-                    res.render('./course/manage', { courses });
-                } else {
-                    res.render('page-not-found');
-                }
+        Promise.all([Course.find({}), Course.countDocumentsDeleted()])
+            .then(([courses, deletedCount]) => {
+                res.render('./course/manage', {
+                    courses: multipleMongooseToObject(courses),
+                    deletedCount,
+                });
             })
             .catch(next);
     }
@@ -99,12 +97,13 @@ class CoursesController {
 
     // [GET] courses/deleted
     deleted(req, res, next) {
-        Course.findDeleted({})
-            .then((courses) =>
+        Promise.all([Course.findDeleted({}), Course.countDocuments()])
+            .then(([coursesDeleted, coursesCount]) => {
                 res.render('./course/deleted-courses', {
-                    courses: multipleMongooseToObject(courses),
-                }),
-            )
+                    courses: multipleMongooseToObject(coursesDeleted),
+                    coursesCount,
+                });
+            })
             .catch(next);
     }
 
@@ -117,6 +116,24 @@ class CoursesController {
     forceDelete(req, res, next) {
         Course.deleteOne({ _id: req.params.id })
             .then(res.redirect('back'))
+            .catch(next);
+    }
+
+    mutipleDelete(req, res, next) {
+        Course.delete({ _id: { $in: req.body.courseIds } })
+            .then(res.redirect('/courses/manage'))
+            .catch(next);
+    }
+
+    mutipleRestore(req, res, next) {
+        Course.restore({ _id: { $in: req.body.courseIds } })
+            .then(res.redirect('/courses/deleted'))
+            .catch(next);
+    }
+
+    multipleforceDelete(req, res, next) {
+        Course.deleteMany({ _id: { $in: req.body.courseIds } })
+            .then(res.redirect('/courses/deleted'))
             .catch(next);
     }
 }
