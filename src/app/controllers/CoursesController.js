@@ -120,19 +120,25 @@ class CoursesController {
     }
 
     mutipleDelete(req, res, next) {
-        Course.delete({ _id: { $in: req.body.courseIds } })
+        Course.delete({
+            _id: { $in: req.body.courseIds },
+        })
             .then(res.redirect('/courses/manage'))
             .catch(next);
     }
 
     mutipleRestore(req, res, next) {
-        Course.restore({ _id: { $in: req.body.courseIds } })
+        Course.restore({
+            _id: { $in: req.body.courseIds },
+        })
             .then(res.redirect('/courses/deleted'))
             .catch(next);
     }
 
     multipleforceDelete(req, res, next) {
-        Course.deleteMany({ _id: { $in: req.body.courseIds } })
+        Course.deleteMany({
+            _id: { $in: req.body.courseIds },
+        })
             .then(res.redirect('/courses/deleted'))
             .catch(next);
     }

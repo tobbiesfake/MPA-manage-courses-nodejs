@@ -6,10 +6,19 @@
 <form id="multiple-select-form" name="multiple-select-form" action="" method="POST">
 
 <div class="m-3">
-  <button class="btn btn-secondary select-all" id="select-all">Select all</button>
-  <button class="btn btn-secondary unselect-all" id="unselect-all" disabled>Unselect all</button>
+  <button
+    class="btn btn-secondary select-all"
+    id="select-all"
+    type="button"
+    {{#unless courses}}
+    disabled
+    {{/unless}}
+  >
+    Select all
+  </button>
+  <button class="btn btn-secondary unselect-all" id="unselect-all" type="button" disabled>Unselect all</button>
   <button class="btn btn-success restore-selected" id="restore-selected" type="submit" form="multiple-select-form" disabled>Restore</button>
-  <button class="btn btn-danger force-delete-selected" id="force-delete-selected" type="submit" form="multiple-select-form" disabled>Force Delete</button>
+  <button class="btn btn-danger force-delete-selected" id="force-delete-selected" type="button" data-bs-toggle="modal" data-bs-target="#confirm-multi-force-deletion" disabled>Force Delete</button>
 </div>
 {{#if courses}}
   <table class="table table-dark table-striped">
@@ -67,12 +76,31 @@
   </div>
 </div>
 
+<div class="modal fade" tabindex="-1" id="confirm-multi-force-deletion">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Force Delete Selections</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to permanently delete this courses? You can't undo this</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="confirm-multi-force-deletion-btn" type="button" class="btn btn-primary btn-danger">Force delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {{!-- Hidden delete form --}}
 <form name="delete-course-form" method="POST" action=""></form>
 
 <script>
   const forceDeleteModal = document.getElementById('confirm-force-deletion')
   const confirmBtn = document.getElementById('confirm-btn');
+  const confirmMultiDeleteBtn = document.getElementById('confirm-multi-force-deletion-btn');
   const forceDeleteForm = document.forms['delete-course-form'];
   const multiSelectionForm = document.forms['multiple-select-form'];
   const checkboxes = document.querySelectorAll('input[name="courseIds[]"]');
@@ -155,7 +183,7 @@
     multiSelectionForm.submit();
   })
 
-  forceDeleteBtn.addEventListener('click', () => {
+  confirmMultiDeleteBtn.addEventListener('click', () => {
     multiSelectionForm.action = '/courses/multi-force-delete?_method=DELETE';
     multiSelectionForm.submit();
   })

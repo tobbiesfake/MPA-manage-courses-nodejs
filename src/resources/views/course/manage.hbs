@@ -13,7 +13,16 @@
 <form id="multiple-select-form" action="/courses/multi-course?_method=DELETE" method="POST">
 
 <div class="m-3">
-  <button class="btn btn-secondary select-all" id="select-all">Select all</button>
+  <button
+    class="btn btn-secondary select-all"
+    id="select-all"
+    type="button"
+    {{#unless courses}}
+    disabled
+    {{/unless}}
+  >
+    Select all
+  </button>
   <button class="btn btn-secondary unselect-all" id="unselect-all" disabled>Unselect all</button>
   <button class="btn btn-danger delete-selected" id="delete-selected" type="submit" form="multiple-select-form" disabled>Delete</button>
 </div>
